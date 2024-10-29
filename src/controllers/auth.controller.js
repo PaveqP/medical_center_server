@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const patientModel = require('../models/patient.model');
 const { json } = require("express");
+const doctorModel = require("../models/doctor.model");
 
 class authController {
 
@@ -13,7 +14,10 @@ class authController {
     this.token = this.token.bind(this);
     this.validation = this.validation.bind(this);
     this.findUser = this.findUser.bind(this)
+    this.findDoctor = this.findDoctor.bind(this)
     this.createTokens = this.createTokens.bind(this)
+    this.doctorLogin = this.doctorLogin.bind(this)
+    this.doctorRegistration = this.doctorRegistration.bind(this)
   }
 
   createTokens(userData){
@@ -42,6 +46,17 @@ class authController {
 
     if(patient.length > 0){
       return patient
+    }
+
+    return false
+  }
+
+  async findDoctor(email, res){
+    console.log(email)
+    const doctor = await doctorModel.getDoctorByCredentials(email)
+
+    if(doctor.length > 0){
+      return doctor
     }
 
     return false
@@ -82,7 +97,32 @@ class authController {
 
       const userData = patient[0];
 
-      // res.status(200).json(userData);
+      const isMatch = await bcrypt.compare(password, userData.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Неверные учетные данные' });
+      }
+
+      const tokens = this.createTokens(userData)
+
+      res.json(tokens);
+    } catch (error) {
+      console.error('Ошибка при аутентификации', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async doctorLogin(req, res) {
+    try {
+      const { email, password } = req.body;
+
+      const validationErrors = this.validation(req, res);
+      if (validationErrors) return;
+      const doctor = await this.findDoctor(email, res);
+      if (!doctor){
+        return res.status(404).json({ message: `Пользователь ${email} не найден` });
+      };
+
+      const userData = doctor[0];
 
       const isMatch = await bcrypt.compare(password, userData.password);
       if (!isMatch) {
@@ -95,6 +135,42 @@ class authController {
     } catch (error) {
       console.error('Ошибка при аутентификации', error);
       res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async doctorRegistration(req, res) {
+    try {
+      const { 
+        name, 
+        surname, 
+        middle_name, 
+        email, 
+        password, 
+        id_specialization, 
+        practice, 
+        rating, 
+        office, 
+        id_post, 
+        consultation_cost, 
+        department 
+      } = req.body;
+
+      const validationErrors = this.validation(req, res);
+      if (validationErrors) return;
+      const doctorExists = await this.findDoctor(email, res);
+      if (doctorExists){
+        res.status(400).json({ message: `Сотрудник ${email} уже существует` });
+        return
+      };
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      await doctorModel.addNewDoctor(name, surname, middle_name, email, hashedPassword, id_specialization, practice, rating, office, id_post, consultation_cost, department)
+
+      res.json({message: 'success!'});
+    } catch (error) {
+      console.log(error);
+      res.status(400).json({ message: 'Ошибка регистрации сотрудника' });
     }
   }
 

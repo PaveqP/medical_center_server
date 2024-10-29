@@ -22,8 +22,14 @@ class Patient{
         }
     }
 
-    getPatientById(id){
-
+    async getPatientById(id){
+        try {
+            const user = await db.query('SELECT * FROM patient WHERE id = ?', [id])
+            return user[0][0]
+        } catch (error) {
+            console.error("Ошибка при получении пользователя:", error);
+            return 
+        }
     }
 }
 

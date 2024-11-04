@@ -1,9 +1,9 @@
 const Router = require("express");
-const controller = require("../controllers/patient.controller");
+const controller = require("../controllers/base.controller");
 const { authenticateToken } = require("../middleware/authMiddleware");
 
 const router = new Router();
 
-router.get('/patient/profile', authenticateToken, controller.getPatient)
+router.get('/specializations', authenticateToken, controller.getSpecializations)
 
 module.exports = router;

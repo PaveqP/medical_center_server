@@ -4,6 +4,7 @@ const cors = require("cors");
 const authRouter = require('./routes/auth.routes')
 const patientRouter = require('./routes/patient.routes')
 const doctorRouter = require('./routes/doctor.routes')
+const baseRouter = require('./routes/base.routes')
 
 const PORT = 8080;
 
@@ -14,6 +15,7 @@ app.use(cors());
 app.use('/api', authRouter)
 app.use('/api', patientRouter)
 app.use('/api', doctorRouter)
+app.use('/api', baseRouter)
 
 app.get("/", (req, res) => {
   res.send(`

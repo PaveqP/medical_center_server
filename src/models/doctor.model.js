@@ -31,6 +31,47 @@ class Doctor{
             return 
         }
     }
+
+    async getDoctorBySpecialization(specialization){
+        try {
+            const spec_id = await db.query('SELECT id FROM specialization WHERE name = ?', [specialization])
+            const users = await db.query('SELECT * FROM doctor WHERE id_specialization = ?', [spec_id[0][0].id])
+            return users[0]
+        } catch (error) {
+            console.error("Ошибка при получении данных специалиста:", error);
+            return 
+        }
+    }
+
+    async getDoctorsList(){
+        try {
+            const users = await db.query('SELECT * FROM doctor')
+            return users[0]
+        } catch (error) {
+            console.error("Ошибка при получении списка врачей:", error);
+            return 
+        }
+    }
+
+    async getDoctorsTimetable(id){
+        try {
+            const timeSlots = await db.query('SELECT t.* FROM doctor_timetable dt JOIN timetable t ON dt.id_timetable = t.id WHERE dt.id_doctor = ?', [id])
+            return timeSlots[0] 
+        } catch (error) {
+            console.error("Ошибка при получении графика работы:", error);
+            return 
+        }
+    }
+
+    async getDoctorConsultations(id){
+        try {
+            const consultations = await db.query('SELECT * FROM consultation WHERE id_doctor = ?', [id])
+            return consultations[0] 
+        } catch (error) {
+            console.error("Ошибка при получении списка записей:", error);
+            return 
+        }
+    }
 }
 
 

@@ -31,6 +31,24 @@ class Patient{
             return 
         }
     }
+
+    async createConsultation(data){
+        try {
+            const response = await db.query('INSERT INTO consultation (date, time, id_doctor, id_patient, cost, reason) VALUES (?, ?, ?, ?, ?, ?)', 
+                [
+                    data.date,
+                    data.time,
+                    data.id_doctor,
+                    data.id_patient,
+                    data.cost,
+                    data.reason
+                ])
+            return response
+        } catch (error) {
+            console.error("Ошибка при добавлении записи о консультации:", error);
+            return 
+        }
+    }
 }
 
 

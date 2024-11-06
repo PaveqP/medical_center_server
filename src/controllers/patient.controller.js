@@ -16,6 +16,39 @@ class patientController {
     }
   }
 
+  async getPatientVisits(req, res) {
+    try {
+        const id = req.user.id  
+        const visits = await patientModel.getPatientVisits(id)
+        res.json(visits)
+    } catch (error) {
+      console.error('Ошибка при получении данных пользователя', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async getPatientPastVisits(req, res) {
+    try {
+        const id = req.user.id  
+        const visits = await patientModel.getPatientVisits(id, 'past')
+        res.json(visits)
+    } catch (error) {
+      console.error('Ошибка при получении данных пользователя', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async getPatientFutureVisits(req, res) {
+    try {
+        const id = req.user.id  
+        const visits = await patientModel.getPatientVisits(id, 'future')
+        res.json(visits)
+    } catch (error) {
+      console.error('Ошибка при получении данных пользователя', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
   async createConsultation(req, res) {
     try {
         const id = req.user.id  

@@ -8,6 +8,8 @@ router.get('/patient/profile', authenticateToken, controller.getPatient)
 router.get('/patient/visits', authenticateToken, controller.getPatientVisits)
 router.get('/patient/visits/past', authenticateToken, controller.getPatientPastVisits)
 router.get('/patient/visits/future', authenticateToken, controller.getPatientFutureVisits)
+router.get('/patient/policy', authenticateToken, controller.getPatientPolicy)
+router.post('/patient/policy', authenticateToken, controller.setPatientPolicy)
 router.post('/patient/consultation/create', authenticateToken, controller.createConsultation)
 
 module.exports = router;

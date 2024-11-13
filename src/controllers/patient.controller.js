@@ -16,6 +16,29 @@ class patientController {
     }
   }
 
+  async getPatientPolicy(req, res) {
+    try {
+        const id = req.user.id  
+        const visits = await patientModel.getPatientPolicy(id)
+        res.json(visits)
+    } catch (error) {
+      console.error('Ошибка при получении данных пользователя', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async setPatientPolicy(req, res) {
+    try {
+        const id = req.user.id  
+        const {number, expiredDate} = req.body
+        const result = await patientModel.setPatientPolicy(id, number, expiredDate)
+        res.json(result)
+    } catch (error) {
+      console.error('Ошибка при создании полиса', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
   async getPatientVisits(req, res) {
     try {
         const id = req.user.id  

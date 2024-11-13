@@ -32,12 +32,45 @@ class Patient{
         }
     }
 
+    async getPatientPolicy(id){
+        try {
+            const policy = await db.query('SELECT * FROM policy WHERE id_patient = ?', [id])
+            return policy[0][0]
+        } catch (error) {
+            console.error("Ошибка при получении данных полиса:", error);
+            return 
+        }
+    }
+
+    async setPatientPolicy(id, number, expired_date){
+        try {
+            const [existingPolicy] = await db.query('SELECT * FROM policy WHERE id_patient = ?', [id]);
+
+        if (existingPolicy.length > 0) {
+            const result = await db.query(
+                'UPDATE policy SET number = ?, end_date = ? WHERE id_patient = ?',
+                [number, expired_date, id]
+            );
+            return result[0];
+        } else {
+            const result = await db.query(
+                'INSERT INTO policy (id_patient, number, end_date) VALUES (?, ?, ?)',
+                [id, number, expired_date]
+            );
+            return result[0];
+        }
+        } catch (error) {
+            console.error("Ошибка при создании полиса:", error);
+            return 
+        }
+    }
+
     async getPatientVisits(id, visitsTimeType = null){
         try {
             let visits = null
             const currentDate = new Date()
             const year = currentDate.getFullYear();
-            const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Месяцы в JavaScript считаются от 0 до 11
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
             const day = String(currentDate.getDate()).padStart(2, '0');
             const formattedDate = `${year}-${month}-${day}`;
 

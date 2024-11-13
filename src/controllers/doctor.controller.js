@@ -58,6 +58,50 @@ class doctorController {
       res.status(500).json({ message: 'Ошибка сервера' });
     }
   }
+
+  async getDoctorFutureConsultations(req, res) {
+    try {
+        const id = req.user.id;
+        const consultations = await doctorModel.getDoctorConsultations(id, 'future')
+        res.json(consultations)
+    } catch (error) {
+      console.error('Ошибка при получении данных', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async getDoctorPastConsultations(req, res) {
+    try {
+        const id = req.user.id;
+        const consultations = await doctorModel.getDoctorConsultations(id, 'past')
+        res.json(consultations)
+    } catch (error) {
+      console.error('Ошибка при получении данных', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async getDoctorConsultationById(req, res) {
+    try {
+        const id = req.params.id;
+        const consultation = await doctorModel.getDoctorConsultationById(id)
+        res.json(consultation)
+    } catch (error) {
+      console.error('Ошибка при получении данных', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
+
+  async completeConsultation(req, res) {
+    try {
+        const {id, diagnosis, recommendations} = req.body;
+        const consultation = await doctorModel.completeConsultation(id, diagnosis, recommendations)
+        res.json(consultation)
+    } catch (error) {
+      console.error('Ошибка при получении данных', error);
+      res.status(500).json({ message: 'Ошибка сервера' });
+    }
+  }
 }
 
 module.exports = new doctorController()

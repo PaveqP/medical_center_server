@@ -63,13 +63,76 @@ class Doctor{
         }
     }
 
-    async getDoctorConsultations(id){
+    async getDoctorConsultations(id, consultationTimeType = null){
         try {
-            const consultations = await db.query('SELECT * FROM consultation WHERE id_doctor = ?', [id])
-            return consultations[0] 
+            let consultations = null
+            const currentDate = new Date()
+            const year = currentDate.getFullYear();
+            const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+            const day = String(currentDate.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+
+            if(!consultationTimeType){
+                consultations = await db.query('SELECT * FROM consultation WHERE id_doctor = ?', [id])
+            } else if (consultationTimeType === 'past'){
+                consultations = await db.query('SELECT * FROM consultation WHERE id_doctor = ? AND date < ?', [id, formattedDate])
+            } else if (consultationTimeType === 'future'){
+                consultations = await db.query('SELECT * FROM consultation WHERE id_doctor = ? AND date > ?', [id, formattedDate])
+            }
+            
+            if (consultations && consultations[0] && consultations[0].length > 0) {
+                return consultations[0];
+            } else {
+                console.log("Посещения не найдены");
+                return null;
+            }
         } catch (error) {
             console.error("Ошибка при получении списка записей:", error);
             return 
+        }
+    }
+
+    async getDoctorConsultationById(id){
+        try {
+            const consultation = await db.query('SELECT * FROM consultation WHERE id = ?', [id])
+            const patient = await db.query('SELECT * FROM patient WHERE id = ?', [consultation[0][0].id_patient])
+            return {'consultation': consultation[0][0], 'patient': patient[0][0]}
+        } catch (error) {
+            console.error("Ошибка при получении данных о консультации:", error);
+            return
+        }
+    }
+
+    async completeConsultation(id, diagnosis, recommendations){
+        const connection = await db.getConnection();
+
+    try {
+            await connection.beginTransaction();
+
+            await connection.query(
+                'INSERT INTO conclusion (diagnosis, recomendations) VALUES (?, ?)',
+                [diagnosis, recommendations]
+            );
+
+            const [result] = await connection.query('SELECT LAST_INSERT_ID() as id');
+
+            const conclusionId = result[0].id;
+
+            await connection.query(
+                'UPDATE consultation SET id_conclusion = ? WHERE id = ?',
+                [conclusionId, id]
+            );
+
+            await connection.commit();
+
+            console.log(`Консультация ${id} завершена с заключением ${conclusionId}`);
+            return { success: true, consultationId: id, conclusionId };
+        } catch (error) {
+            await connection.rollback();
+            console.error("Ошибка при завершении консультации:", error);
+            throw error;
+        } finally {
+            connection.release();
         }
     }
 }

@@ -5,5 +5,6 @@ const { authenticateToken } = require("../middleware/authMiddleware");
 const router = new Router();
 
 router.get('/specializations', authenticateToken, controller.getSpecializations)
+router.get('/conclusion/:id', authenticateToken, controller.getConclusionById)
 
 module.exports = router;

@@ -17,18 +17,4 @@ app.use('/api', patientRouter)
 app.use('/api', doctorRouter)
 app.use('/api', baseRouter)
 
-app.get("/", (req, res) => {
-  res.send(`
-      <html>
-        <head>
-          <title>Пример Express сервера</title>
-        </head>
-        <body>
-          <h1>Добро пожаловать на наш сервер!</h1>
-          <p>Ебали тебя всем селом))))))))))))</p>
-        </body>
-      </html>
-    `);
-});
-
 app.listen(PORT, () => console.log("server started!"));
